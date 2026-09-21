@@ -10,7 +10,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft" && basketPos > 0) {
     basket.style.left = basketPos - 20 + "px";
   }
-  if (e.key === "ArrowRight" && basketPos < 320) {
+  if (e.key === "ArrowRight" && basketPos < (gameArea.offsetWidth - basket.offsetWidth)) {
     basket.style.left = basketPos + 20 + "px";
   }
 });
@@ -25,7 +25,7 @@ function createFruit() {
   const chosenFruit = fruits[Math.floor(Math.random() * fruits.length)];
   fruit.style.backgroundImage = `url("images/${chosenFruit}")`;
 
-  fruit.style.left = Math.floor(Math.random() * 350) + "px";
+  fruit.style.left = Math.floor(Math.random() * (gameArea.offsetWidth - 50)) + "px";
   fruit.style.top = "0px";
   gameArea.appendChild(fruit);
 
@@ -36,10 +36,11 @@ function createFruit() {
     let basketRect = basket.getBoundingClientRect();
     let fruitRect = fruit.getBoundingClientRect();
 
+    // Collision detection
     if (
       fruitRect.bottom >= basketRect.top &&
-      fruitRect.left >= basketRect.left &&
-      fruitRect.right <= basketRect.right
+      fruitRect.left < basketRect.right &&
+      fruitRect.right > basketRect.left
     ) {
       score++;
       scoreDisplay.textContent = "Score: " + score;
@@ -48,7 +49,8 @@ function createFruit() {
       clearInterval(fallInterval);
     }
 
-    if (fruitTop > 600) {
+    // Remove fruit if it falls out
+    if (fruitTop > gameArea.offsetHeight) {
       fruit.remove();
       clearInterval(fallInterval);
     }
@@ -85,4 +87,3 @@ function showHighScoreMessage() {
 
 // Drop fruits every 2 seconds
 setInterval(createFruit, 2000);
-
