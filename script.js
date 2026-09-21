@@ -2,6 +2,7 @@ const gameArea = document.getElementById("gameArea");
 const basket = document.getElementById("basket");
 const scoreDisplay = document.getElementById("score");
 let score = 0;
+let highScore = localStorage.getItem("highScore") || 0;
 
 // Move basket with arrow keys
 document.addEventListener("keydown", (e) => {
@@ -9,7 +10,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft" && basketPos > 0) {
     basket.style.left = basketPos - 20 + "px";
   }
-  if (e.key === "ArrowRight" && basketPos < 340) {
+  if (e.key === "ArrowRight" && basketPos < 320) {
     basket.style.left = basketPos + 20 + "px";
   }
 });
@@ -18,8 +19,13 @@ document.addEventListener("keydown", (e) => {
 function createFruit() {
   const fruit = document.createElement("div");
   fruit.classList.add("fruit");
-  fruit.style.background = randomColor();
-  fruit.style.left = Math.floor(Math.random() * 360) + "px";
+
+  // Use your uploaded PNGs
+  const fruits = ["apple.png", "banana.png", "eggplant.png", "watermelon.png"];
+  const chosenFruit = fruits[Math.floor(Math.random() * fruits.length)];
+  fruit.style.backgroundImage = `url("images/${chosenFruit}")`;
+
+  fruit.style.left = Math.floor(Math.random() * 350) + "px";
   fruit.style.top = "0px";
   gameArea.appendChild(fruit);
 
@@ -27,7 +33,6 @@ function createFruit() {
     let fruitTop = parseInt(fruit.style.top);
     fruit.style.top = fruitTop + 5 + "px";
 
-    // Check collision with basket
     let basketRect = basket.getBoundingClientRect();
     let fruitRect = fruit.getBoundingClientRect();
 
@@ -38,11 +43,11 @@ function createFruit() {
     ) {
       score++;
       scoreDisplay.textContent = "Score: " + score;
+      checkHighScore();
       fruit.remove();
       clearInterval(fallInterval);
     }
 
-    // Remove fruit if it falls out
     if (fruitTop > 600) {
       fruit.remove();
       clearInterval(fallInterval);
@@ -50,11 +55,34 @@ function createFruit() {
   }, 50);
 }
 
-// Random fruit color
-function randomColor() {
-  const colors = ["red", "yellow", "green", "orange", "purple"];
-  return colors[Math.floor(Math.random() * colors.length)];
+// High score check
+function checkHighScore() {
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem("highScore", highScore);
+    showHighScoreMessage();
+  }
+}
+
+// Show high score message
+function showHighScoreMessage() {
+  const msg = document.createElement("div");
+  msg.textContent = "🎉 New High Score! 🎉";
+  msg.style.position = "absolute";
+  msg.style.top = "50%";
+  msg.style.left = "50%";
+  msg.style.transform = "translate(-50%, -50%)";
+  msg.style.fontSize = "30px";
+  msg.style.color = "green";
+  msg.style.fontWeight = "bold";
+  msg.style.background = "yellow";
+  msg.style.padding = "10px";
+  msg.style.borderRadius = "10px";
+  gameArea.appendChild(msg);
+
+  setTimeout(() => msg.remove(), 2000);
 }
 
 // Drop fruits every 2 seconds
 setInterval(createFruit, 2000);
+
